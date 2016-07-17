@@ -1,0 +1,15 @@
+{
+  "name": "adms",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "hy",
+  "license": "ISC",
+  "devDependencies": {
+    "node-xlsx": "^0.7.1",
+    "transliteration": "^1.1.6"
+  }
+}
