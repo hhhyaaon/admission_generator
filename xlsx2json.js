@@ -1,6 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var xlsx = require("node-xlsx");
+var trans = require("transliteration");
 
 
 var input = path.join(__dirname, "./file.xlsx");
@@ -41,9 +42,9 @@ var res = {};
 
 sheets.map(function (sheet) {
     var sheetMap = map.sheetMap;
-    if (sheet.name.indexOf("美国") > -1) res[sheetMap.america.id] = sheet.data;
-    if (sheet.name.indexOf("英国") > -1) res[sheetMap.uk.id] = sheet.data;
-    if (sheet.name.indexOf("其他") > -1) res[sheetMap.other.id] = sheet.data;
+    if (sheet.name.indexOf("美国") > -1) res[sheetMap.america.id] = formatDataSource(sheet.data);
+    if (sheet.name.indexOf("英国") > -1) res[sheetMap.uk.id] = formatDataSource(sheet.data);
+    if (sheet.name.indexOf("其他") > -1) res[sheetMap.other.id] = formatDataSource(sheet.data);
 })
 
 //数据源
@@ -52,25 +53,19 @@ var fieldMap_adms=${JSON.stringify(map)};
 var dataSource_adms=${JSON.stringify(res)};
 `);
 
-
-// sheets.map(function (sheet) {
-//     var colums = sheet.data.shift;
-//     var data = [];
-//     //loop colums, get field name of row data
-//     colums.map(function (colum, idx) {
-//         var name = getRandom();
-//         //loop row, get row data
-//         sheet.map(function (row, i) {
-//             var row_obj = data[i] || {};
-//         })
-//     })
-
-//     return {
-//         name: sheet.name,
-//         colums: colums,
-//         data: data
-//     }
-// });
+function formatDataSource(arr) {
+    arr = arr.map(function (row, i) {
+        if (i !== 0) {
+            // 学生姓名：显示为[x]同学
+            row[0] = (trans.transliterate(row[0]).substring(0, 1) || '') + '同学';
+        }
+        return row;
+    });
+    return {
+        column: arr[0],
+        list: arr.slice(1)
+    }
+}
 
 
 function getRandom(count) {

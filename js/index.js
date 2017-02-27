@@ -102,7 +102,7 @@
         }
         return _this;
     }
-} (Zepto));
+}(Zepto));
 
 
 
@@ -118,10 +118,15 @@
     var $thead = $(".adms-table>table>thead");
     var $tbody = $(".adms-table>table>tbody");
 
-    var sheetMap = map.sheetMap;
-
+    // url query name
     var sstName = "country";
+    var sheetMap = map.sheetMap;
+    var curSheetId = _getQuery()[sstName] || sheetMap.america.id;
 
+    // 数据源排序
+    var colRankIdx = 10;
+
+    // 搜索栏
     var searchBar = null;
     var search_colum = [
         { id: "4", text: "毕业院校" },
@@ -133,15 +138,17 @@
     init()
 
     function init() {
-        var curSheet = getCurSheet();
         initSearch();
-        createDom(curSheet);
+        createDom(curSheetId);
     }
 
-    function getCurSheet() {
-        var curSheet = _getQuery()[sstName];
-        curSheet = curSheet || sheetMap.america.id;
-        return curSheet;
+    function getDataSourceByOrder(dataSource) {
+        // 数据源按照以下方式排序：
+        // 1、按年份倒序排列（按excel划分）
+        // 2、同年份按【综合排名】正序排列
+        return dataSource.sort(function (a, b) {
+            return Number(a[colRankIdx]) >= Number(b[colRankIdx]) ? 1 : -1;
+        });
     }
 
     function initSearch() {
@@ -158,18 +165,19 @@
     }
 
 
-    function createDom(curSheet) {
-        var dataSource = data[curSheet];
-        createMenu(curSheet);
-        createTable(dataSource);
-        setPageDate(curSheet);
+    function createDom(curSheetId) {
+        var curSheetData = data[curSheetId];
+        var dataSource = getDataSourceByOrder(curSheetData.list);
+        createMenu();
+        createTable(curSheetData.column, dataSource);
+        setPageDate(curSheetId);
     }
 
 
-    function setPageDate(curSheet) {
+    function setPageDate(curSheetId) {
         var obj = null;
         Object.getOwnPropertyNames(map.sheetMap).map(function (name) {
-            if (map.sheetMap[name].id === curSheet) obj = map.sheetMap[name];
+            if (map.sheetMap[name].id === curSheetId) obj = map.sheetMap[name];
         })
         $header.attr("src", `img/${obj.img}`);
         $title.text(`微思教育 ${obj.text}录取榜`);
@@ -195,20 +203,20 @@
             )
             //}
         })
-        function onClickMenuItem(curSheet) {
+        function onClickMenuItem(curSheetId) {
             var query = {};
-            query[sstName] = curSheet;
+            query[sstName] = curSheetId;
             _goto("offer.htm", query);
             //window.location.reload();
             //init();
         }
     }
 
-    function createTable(dataSource) {
+    function createTable(column, dataSource) {
         $thead.empty();
         $tbody.empty();
         //thead
-        var theadArr = dataSource.slice(0, 1)[0];
+        var theadArr = column;
         var $tr = $("<tr>");
         theadArr.slice(0, theadArr.length - 3).map(function (item) {
             $tr.append(
@@ -218,7 +226,7 @@
         $thead.append($tr);
 
         //thbody
-        dataSource.slice(1).map(function (item) {
+        dataSource.map(function (item) {
             var $tr = $("<tr>");
             item.slice(0, item.length - 3).map(function (o) {
                 $tr.append(
@@ -231,12 +239,12 @@
 
     function onSearch(value, field) {
         if (!value || !field) return;
-        var dataSource = data[getCurSheet()];
-        var theadArr = dataSource.slice(0, 1);
-        var resArr = dataSource.slice(1).filter(function (row, i) {
+        var curSheetData = data[curSheetId];
+        var dataSource = getDataSourceByOrder(curSheetData.list);
+        dataSource = dataSource.filter(function (row, i) {
             return (row[Number(field)] || "").indexOf(value) > -1;
         });
-        createTable(theadArr.concat(resArr));
+        createTable(curSheetData.column, dataSource);
     }
 
 
@@ -259,6 +267,6 @@
         return query;
     }
 
-} (Zepto, window.dataSource_adms, window.fieldMap_adms));
+}(Zepto, window.dataSource_adms, window.fieldMap_adms));
 
 
