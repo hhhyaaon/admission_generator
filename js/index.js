@@ -256,12 +256,12 @@
     }
 
     function _getQuery() {
-        let query = {};
-        let href = window.location.href;
-        let query_str = href.substring(href.lastIndexOf("?") + 1);
+        var query = {};
+        var href = window.location.href;
+        var query_str = href.substring(href.lastIndexOf("?") + 1);
         query_str.replace(/([^=&?]+)=([^=&?]*)/g, (w, $1, $2) => {
-            let key = decodeURIComponent($1);
-            let val = decodeURIComponent($2);
+            var key = decodeURIComponent($1);
+            var val = decodeURIComponent($2);
             query[key] = val;
         });
         return query;
