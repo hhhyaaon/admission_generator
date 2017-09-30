@@ -53,6 +53,7 @@ var fieldMap_adms=${JSON.stringify(map)};
 var dataSource_adms=${JSON.stringify(res)};
 `);
 
+
 function formatDataSource(arr) {
     arr = arr.map(function (row, i) {
         if (i !== 0) {

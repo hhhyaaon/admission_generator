@@ -140,15 +140,17 @@
     function init() {
         initSearch();
         createDom(curSheetId);
+        setTableColumWid();
     }
 
     function getDataSourceByOrder(dataSource) {
         // 数据源按照以下方式排序：
         // 1、按年份倒序排列（按excel划分）
         // 2、同年份按【综合排名】正序排列
-        return dataSource.sort(function (a, b) {
-            return Number(a[colRankIdx]) >= Number(b[colRankIdx]) ? 1 : -1;
-        });
+        return dataSource;
+        // return dataSource.sort(function (a, b) {
+        //     return Number(parseInt(a[colRankIdx])) >= Number(parseInt(b[colRankIdx])) ? 1 : -1;
+        // });
     }
 
     function initSearch() {
@@ -179,7 +181,7 @@
         Object.getOwnPropertyNames(map.sheetMap).map(function (name) {
             if (map.sheetMap[name].id === curSheetId) obj = map.sheetMap[name];
         })
-        $header.attr("src", `img/${obj.img}`);
+        $header.attr("src", "img/" + obj.img);
         $title.text(`微思教育 ${obj.text}录取榜`);
         $("head")
             .append($("<title>").text(obj.title))
@@ -228,13 +230,21 @@
         //thbody
         dataSource.map(function (item) {
             var $tr = $("<tr>");
-            item.slice(0, item.length - 3).map(function (o) {
+            var rows = item;
+            item.slice(0, theadArr.length - 3).map(function (o) {
+                if (isNaN(Number(o))) {
+                    o = o.replace(/（/g, "(").replace(/）/g, ")");
+                }
                 $tr.append(
                     $("<td>").text(o)
                 );
             })
             $tbody.append($tr);
         });
+    }
+
+    function setTableColumWid() {
+        $thead.find('td').first(0).width(50);// 姓名
     }
 
     function onSearch(value, field) {
